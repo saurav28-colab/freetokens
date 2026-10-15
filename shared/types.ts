@@ -249,6 +249,10 @@ export type Platform =
   // does not publish a token ceiling or a QPS figure for it, so neither is
   // claimed here.
   | 'xfyun'
+  // Token Harbor — OpenAI-compatible gateway (https://tokenharbor.ai/v1). Free
+  // `:free` model routes (claude-haiku-5.5:free etc.) use a rolling 7-day allowance
+  // per account, opt-in privacy caveat, model availability may vary.
+  | 'tokenharbor'
   // AI Horde — free, community-powered inference (volunteer workers) via an
   // OpenAI-compatible proxy (https://oai.aihorde.net/v1). Queue-based, so calls
   // can take tens of seconds; no tool support; usage is reported as kudos, not

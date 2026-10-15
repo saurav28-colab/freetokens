@@ -452,6 +452,7 @@ export const platformColors: Record<string, string> = {
   orcarouter:  '#f97316',
   unorouter:   '#ec4899',
   xkiro:       '#a855f7',
+  tokenharbor: '#0ea5e9',
   anyapi:      '#0891b2',
   modelscope:  '#624aff',
   aihorde:     '#dc2626',

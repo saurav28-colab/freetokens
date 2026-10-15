@@ -85,6 +85,7 @@ export const PLATFORMS: { value: Platform; label: string; url: string; keyless?:
   { value: 'orcarouter', label: 'OrcaRouter (free key)', url: 'https://www.orcarouter.ai' },
   { value: 'unorouter', label: 'UnoRouter (free key)', url: 'https://unorouter.com' },
   { value: 'xkiro', label: 'xKiro (free key)', url: 'https://xkiro.com' },
+  { value: 'tokenharbor', label: 'Token Harbor (free :free routes)', url: 'https://tokenharbor.ai' },
   // AnyAPI advertises 100K tokens/day free, but live testing on 2026-08-10
   // could not get a single free-tier request served (see
   // CATALOG-ANYAPI-SMOKE-2026-08-10 in the ops repo). No quota claim until

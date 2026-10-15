@@ -595,6 +595,16 @@ register(new OpenAICompatProvider({
   baseUrl: 'https://spark-api-open.xf-yun.com/v1',
 }));
 
+// Token Harbor — OpenAI-compatible gateway (https://tokenharbor.ai/v1). Free
+// `:free` model routes use a rolling 7-day allowance per account,
+// opt-in privacy caveat, model availability may vary. Base URL is
+// https://tokenharbor.ai/v1 (OpenAI-compatible /v1/chat/completions).
+register(new OpenAICompatProvider({
+  platform: 'tokenharbor',
+  name: 'Token Harbor',
+  baseUrl: 'https://tokenharbor.ai/v1',
+}));
+
 // AI Horde — free, community-powered inference (volunteer workers) via an
 // OpenAI-compatible proxy. Dedicated AIHordeProvider (not OpenAICompatProvider)
 // because the proxy is queue-based and diverges from the OpenAI contract:
