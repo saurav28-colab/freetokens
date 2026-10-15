@@ -450,6 +450,10 @@ keysRouter.get('/', (_req: Request, res: Response) => {
       createdAt: row.created_at,
       lastCheckedAt: row.last_checked_at,
       lastHealthError: row.last_health_error ?? null,
+      // #1493: when the key last demonstrably worked (probe verdict 'healthy'
+      // or, throttled, a served request) — distinct from last_checked_at,
+      // which also refreshes on transport errors.
+      lastHealthyAt: row.last_healthy_at ?? null,
       // The model_id list this key is limited to; null = serves everything (#657).
       modelScope: scope ? [...scope] : null,
       // The per-key proxy override with its password masked (#590). '' = no

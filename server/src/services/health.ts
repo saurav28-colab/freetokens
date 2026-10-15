@@ -224,8 +224,8 @@ export async function checkKeyHealth(keyId: number): Promise<KeyStatus> {
 
     const status: KeyStatus = isValid ? 'healthy' : 'invalid';
 
-    db.prepare("UPDATE api_keys SET status = ?, last_health_error = ?, last_checked_at = datetime('now') WHERE id = ?")
-      .run(status, lastError, keyId);
+    db.prepare("UPDATE api_keys SET status = ?, last_health_error = ?, last_checked_at = datetime('now'), last_healthy_at = CASE WHEN ? = 'healthy' THEN datetime('now') ELSE last_healthy_at END WHERE id = ?")
+      .run(status, lastError, status, keyId);
 
     if (isValid) {
       failureCount.delete(keyId);
@@ -336,11 +336,26 @@ export async function probeKeyValidity(keyId: number): Promise<KeyProbeOutcome> 
  * means a provider confirmed the credential is bad, and only a real validateKey
  * pass clears that.
  */
+// #1493: stamp last_healthy_at from real traffic at most once per key per
+// minute — serving traffic is proof the key worked, but a DB write per
+// request would be disproportionate bookkeeping.
+const lastHealthyStampAt = new Map<number, number>();
+const LAST_HEALTHY_STAMP_INTERVAL_MS = 60_000;
+
 export function markKeyHealthyFromRequest(keyId: number): void {
   try {
-    getDb()
-      .prepare("UPDATE api_keys SET status = 'healthy', last_health_error = NULL WHERE id = ? AND status IN ('error', 'unknown')")
-      .run(keyId);
+    const now = Date.now();
+    const lastStamp = lastHealthyStampAt.get(keyId) ?? 0;
+    if (now - lastStamp >= LAST_HEALTHY_STAMP_INTERVAL_MS) {
+      lastHealthyStampAt.set(keyId, now);
+      getDb()
+        .prepare("UPDATE api_keys SET status = 'healthy', last_health_error = NULL, last_healthy_at = datetime('now') WHERE id = ? AND status IN ('error', 'unknown')")
+        .run(keyId);
+    } else {
+      getDb()
+        .prepare("UPDATE api_keys SET status = 'healthy', last_health_error = NULL WHERE id = ? AND status IN ('error', 'unknown')")
+        .run(keyId);
+    }
     failureCount.delete(keyId);
   } catch {
     // Never let health bookkeeping break a request that already succeeded.
