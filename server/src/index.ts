@@ -22,6 +22,7 @@ import { installLogRedaction } from './lib/log-redaction.js';
 import { cleanupExpiredCooldowns } from './services/ratelimit.js';
 import { loadCacheFromDb } from './services/cache.js';
 import { installGracefulShutdown } from './lib/graceful-shutdown.js';
+import { initMongoPersistence } from './lib/mongo-persistence.js';
 
 // Before any other statement runs, so no provider key can reach stdout — users
 // paste server output into bug reports. Module scope, not inside main(), so it
@@ -45,6 +46,10 @@ async function main() {
     await restoreDbBackupIfNeeded();
   }
   initDb(config.dbPath ?? undefined);
+  // Before anything reads or writes keys, accounts or settings: when
+  // MONGODB_URI is set, MongoDB is their source of truth and is loaded into
+  // the local tables here.
+  await initMongoPersistence(getDb());
   applyDeclarativeConfigFromEnv();
   // After initDb: the unknown-model half of this check reads the catalog.
   warnOnRoutingOverrideDrift();

@@ -28,6 +28,7 @@ import { compressionRouter } from './routes/compression.js';
 import { authRouter } from './routes/auth.js';
 import { docsRouter } from './routes/docs.js';
 import { mcpRouter } from './routes/mcp.js';
+import { mongoPersistence } from './lib/mongo-persistence.js';
 import { statusRouter, providersRouter } from './routes/status.js';
 import { geminiRouter } from './routes/gemini.js';
 import { ollamaRouter } from './routes/ollama.js';
@@ -230,6 +231,9 @@ export function createApp(config?: Config) {
   // the Ollama /api/* mount above, which carries its own proxy limiter.
   const adminRateLimiter = createAdminRateLimiter();
   app.use('/api', adminRateLimiter);
+  // No-op unless MONGODB_URI is set: holds responses to requests that changed
+  // keys, accounts or settings until the change is durably written to MongoDB.
+  app.use('/api', mongoPersistence());
 
   // Dashboard auth (#35): /api/auth/{status,setup,login} bootstrap without a
   // session; everything else under /api/* requires a logged-in dashboard user.
